@@ -27,9 +27,7 @@ package {
 		[Embed(source = "data/worlds/world_3_1.txt", mimeType = "application/octet-stream")] private var World_3_1:Class;
 		// world 4
 		[Embed(source = "data/worlds/world_4_0.txt", mimeType = "application/octet-stream")] private var World_4_0:Class;
-		[Embed(source = "data/worlds/world_4_1.txt", mimeType = "application/octet-stream")] private var World_4_1:Class;
-		
-		
+		[Embed(source = "data/worlds/world_4_1.txt", mimeType = "application/octet-stream")] private var World_4_1:Class;		
 		
 		private var TileMap:FlxTilemap;
 		private var player:FlxSprite;
@@ -69,9 +67,12 @@ package {
 		public var counter:int = 100;
 		
 		private var initial_mute:Boolean = false;
+		
+		private var world_end:int = 4;
 
 		[Embed(source = "data/Constancy Part Two.mp3")] public static var Chase:Class;
-		[Embed(source = "data/mude.png")] public static var MuteSheet:Class;
+		[Embed(source = "data/mude.png")] public static var MuteOffSheet:Class;
+		[Embed(source = "data/mude-x.png")] public static var MuteOnSheet:Class;
 		private var mood:FlxSound;
 		private var btnMute:FlxButton;
 		
@@ -89,7 +90,7 @@ package {
 				Layer1Tiles = World_3_1;
 			} else if (world == 4) {
 				Layer0Tiles = World_4_0;
-				Layer1Tiles = World_4_1;				
+				Layer1Tiles = World_4_1;		
 			} else {
 				end(false);
 			}
@@ -143,7 +144,7 @@ package {
 							lights.add(o);
 							break;				
 						case 15:
-							if (world < 4) {
+							if (world < world_end) {
 								var p:FlxSprite = new FlxSprite((column - 1) * 16, (row - 3) * 16);
 								p.loadGraphic(Door1Tile, false, false, 28, 64);
 								doodads.add(p);
@@ -151,7 +152,7 @@ package {
 								p.loadGraphic(Door2Tile, false, false, 10, 64);							
 								doodads.add(p);						
 							} else {
-								var p2:FlxSprite = new FlxSprite((column - 1) * 16, (row - 6) * 16);
+								var p2:FlxSprite = new FlxSprite((column - 1) * 16, (row - 8) * 16);
 								p2.loadGraphic(PrincessSheet, false, false, 27, 78);
 								doodads.add(p2);
 							}
@@ -168,7 +169,7 @@ package {
 		
 		override public function create():void {			
 			// hide the mouse and (re)set score to 0
-			FlxG.mouse.hide();
+			//FlxG.mouse.hide();
 			FlxG.score = 0;
 			// create groups and add to stage 
 			doodads = new FlxGroup();
@@ -187,7 +188,11 @@ package {
 				initial_mute = true;
 			}
 			btnMute = new FlxButton(FlxG.width - 36, FlxG.height - 36);
-			btnMute.loadGraphic(MuteSheet, false, false, 32, 32);
+			if (initial_mute) {
+				btnMute.loadGraphic(MuteOnSheet, false, false, 32, 32);
+			} else {
+				btnMute.loadGraphic(MuteOffSheet, false, false, 32, 32);
+			}
 			btnMute.onDown = toggleMute;
 			btnMute.scrollFactor.x = 0;
 			btnMute.scrollFactor.y = 0;
@@ -321,10 +326,6 @@ package {
 				}
 			}
 			FlxG.collide(weapon.group, TileMap, bulletHitMap);			
-			if( FlxG.keys.justPressed("BACKSPACE") ) {
-				player.kill();
-				ArrivesText = new DynamicText((FlxG.width / 2) - 200, (FlxG.height / 4) - 15, 400, 30, "The Hero Arrives...", 1000, switchMode);
-			}
 			for (var j:String in exits) {
 				if ((exits[j][0] == ty) && (exits[j][1] == tx) && (!exits[j][2])) {					
 					exits[j][2] = true;
@@ -659,8 +660,10 @@ package {
 				initial_mute = false;
 			}
 			if (FlxG.mute == true) {
+				btnMute.loadGraphic(MuteOnSheet, false, false, 32, 32);
 				mood.pause();
-			} else {				
+			} else {
+				btnMute.loadGraphic(MuteOffSheet, false, false, 32, 32);
 				mood.resume();
 			}
 		}

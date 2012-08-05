@@ -10,8 +10,11 @@ package
 		[Embed(source = "data/brgounde.png")] public static var CastleSheet:Class;
 		[Embed(source = "data/klouwds.png")] public static var CloudsSheet:Class;
 		[Embed(source = "data/Oppressive Gloom.mp3")] public static var Gloom:Class;
-		[Embed(source = "data/mude.png")] public static var MuteSheet:Class;
+		[Embed(source = "data/mude.png")] public static var MuteOffSheet:Class;
+		[Embed(source = "data/mude-x.png")] public static var MuteOnSheet:Class;
+		[Embed(source = "data/start.png")] public static var StartButtonSheet:Class;
 		private var mood:FlxSound;
+		private var initial_mute:Boolean = false;
 		
 		override public function create():void {			
 			background = new FlxSprite(0, 0);
@@ -22,11 +25,16 @@ package
 			clouds.loadGraphic(CloudsSheet, false, false, 557, 41);			
 			add(clouds);
 			// anim
-			btnStartGame = new FlxButton((FlxG.width / 2) - 40, (FlxG.height / 6) - 50, "Start Game", startGame);			
+			btnStartGame = new FlxButton(FlxG.width - 150, FlxG.height - 95, "", startGame);
+			btnStartGame.loadGraphic(StartButtonSheet,true,false, 118, 43);
 			add(btnStartGame);
 			// mute
-			btnMute = new FlxButton(FlxG.width - 36, FlxG.height - 36);
-			btnMute.loadGraphic(MuteSheet, false, false, 32, 32);
+			btnMute = new FlxButton(FlxG.width - 36, FlxG.height - 36);			
+			if (initial_mute) {
+				btnMute.loadGraphic(MuteOnSheet, false, false, 32, 32);
+			} else {
+				btnMute.loadGraphic(MuteOffSheet, false, false, 32, 32);
+			}
 			btnMute.onDown = toggleMute;
 			btnMute.scrollFactor.x = 0;
 			btnMute.scrollFactor.y = 0;			
@@ -35,16 +43,26 @@ package
 			mood = new FlxSound();
 			mood.loadEmbedded(Gloom, true);
 			mood.fadeIn(10);
-			FlxG.mute = false;
+			if (FlxG.mute) {
+				initial_mute = true;
+			}			
+			//FlxG.mute = false;
 			// show the mouse
 			FlxG.mouse.show();
 		}
 		
 		public function toggleMute():void {
-			FlxG.mute = !FlxG.mute;			
+			FlxG.mute = !FlxG.mute;	
+			if (initial_mute) {
+				mood.loadEmbedded(Gloom, true);
+				mood.fadeIn(10);	
+				initial_mute = false;
+			}			
 			if (FlxG.mute == true) {
+				btnMute.loadGraphic(MuteOnSheet, false, false, 32, 32);
 				mood.pause();
 			} else {
+				btnMute.loadGraphic(MuteOffSheet, false, false, 32, 32);
 				mood.resume();
 			}
 		}

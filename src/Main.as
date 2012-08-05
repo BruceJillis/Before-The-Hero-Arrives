@@ -7,7 +7,7 @@ package
 	public class Main extends FlxGame {
 		public function Main() {
 			super(640, 480, MenuState);
-			forceDebugger = false;		
+			forceDebugger = false;
 		}
 	}
 }
