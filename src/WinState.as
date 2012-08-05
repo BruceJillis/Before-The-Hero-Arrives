@@ -20,9 +20,9 @@ package
 		
 		override public function update():void {
 			super.update();
-			if ( FlxG.keys.any() ) {
+			if ( FlxG.keys.justPressed("SPACE") ) {
 				switchToMenu();
-			}		
+			}	
 		}		
 		
 		public function switchToMenu():void {

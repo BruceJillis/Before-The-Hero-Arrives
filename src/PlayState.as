@@ -14,6 +14,7 @@ package {
 		[Embed(source = "data/door1.png")] private static var Door1Tile:Class;
 		[Embed(source = "data/door2.png")] private static var Door2Tile:Class;		
 		[Embed(source = "data/hearts.png")] public static var HeartsSheet:Class;
+		[Embed(source = "data/princess.png")] public static var PrincessSheet:Class;
 		
 		// world 1
 		[Embed(source = "data/worlds/world_1_0.txt", mimeType = "application/octet-stream")] private var World_1_0:Class;
@@ -36,7 +37,7 @@ package {
 		private var jumps:Array;
 		private var exits:Array;
 		
-		private var world:int = 1;
+		private var world:int = 4;
 		
 		private var Layer0Tiles:Class;
 		private var Layer1Tiles:Class;
@@ -66,6 +67,13 @@ package {
 		private var out_of_bounds:Boolean;
 		
 		public var counter:int = 100;
+		
+		private var initial_mute:Boolean = false;
+
+		[Embed(source = "data/Constancy Part Two.mp3")] public static var Chase:Class;
+		[Embed(source = "data/mude.png")] public static var MuteSheet:Class;
+		private var mood:FlxSound;
+		private var btnMute:FlxButton;
 		
 		private function loadWorldZone(world:int):void {
 			out_of_bounds = false;
@@ -135,12 +143,18 @@ package {
 							lights.add(o);
 							break;				
 						case 15:
-							var p:FlxSprite = new FlxSprite((column - 1) * 16, (row - 3) * 16);
-							p.loadGraphic(Door1Tile, false, false, 28, 64);
-							doodads.add(p);
-							p = new FlxSprite((column) * 16, (row - 3) * 16);
-							p.loadGraphic(Door2Tile, false, false, 10, 64);							
-							doodads.add(p);							
+							if (world < 4) {
+								var p:FlxSprite = new FlxSprite((column - 1) * 16, (row - 3) * 16);
+								p.loadGraphic(Door1Tile, false, false, 28, 64);
+								doodads.add(p);
+								p = new FlxSprite((column) * 16, (row - 3) * 16);
+								p.loadGraphic(Door2Tile, false, false, 10, 64);							
+								doodads.add(p);						
+							} else {
+								var p2:FlxSprite = new FlxSprite((column - 1) * 16, (row - 6) * 16);
+								p2.loadGraphic(PrincessSheet, false, false, 27, 78);
+								doodads.add(p2);
+							}
 							exits.push([row - 2, column - 1, false]);
 							break;
 					}
@@ -153,11 +167,10 @@ package {
 		}
 		
 		override public function create():void {			
-			// create groups and add to stage
+			// hide the mouse and (re)set score to 0
 			FlxG.mouse.hide();
 			FlxG.score = 0;
-			FlxG.watch(this, "counter");
-			//
+			// create groups and add to stage 
 			doodads = new FlxGroup();
 			add(doodads);
 			lights = new FlxGroup();
@@ -169,6 +182,20 @@ package {
 			loadWorld();
 			// misc setup stuff			
 			createBars();
+			// mute
+			if (FlxG.mute) {
+				initial_mute = true;
+			}
+			btnMute = new FlxButton(FlxG.width - 36, FlxG.height - 36);
+			btnMute.loadGraphic(MuteSheet, false, false, 32, 32);
+			btnMute.onDown = toggleMute;
+			btnMute.scrollFactor.x = 0;
+			btnMute.scrollFactor.y = 0;
+			add(btnMute);
+			// music
+			mood = new FlxSound();
+			mood.loadEmbedded(Chase, true);
+			mood.fadeIn(10);			
 		}
 		
 		private function loadWorld():void {
@@ -526,6 +553,7 @@ package {
 		}
 		
 		private function end(win:Boolean):void {
+			mood.stop();
 			if (win) {
 				FlxG.switchState(new WinState);
 			} else {
@@ -621,6 +649,20 @@ package {
 			life.scrollFactor.y = 0;
 			life.alpha = 0.5;
 			add(life);	
+		}
+
+		public function toggleMute():void {
+			FlxG.mute = !FlxG.mute;			
+			if (initial_mute) {
+				mood.loadEmbedded(Chase, true);
+				mood.fadeIn(10);	
+				initial_mute = false;
+			}
+			if (FlxG.mute == true) {
+				mood.pause();
+			} else {				
+				mood.resume();
+			}
 		}
 	}
 }
