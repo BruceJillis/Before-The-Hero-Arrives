@@ -5,6 +5,8 @@ BaconGameJam 02 Entry. Have you ever wondered what happens before the hero arriv
 
 [Play It](http://dl.dropbox.com/u/29254286/index.html)
 
+![Screenshot](http://i.imgur.com/InDgP.jpg)
+
 ### Controls:
 
 - right/left ~ move
